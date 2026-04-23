@@ -131,6 +131,23 @@ async function renderTextFrame(text, opts) {
   return buf;
 }
 
+export async function soraVideo({ prompt, filename }) {
+  const url = `https://fast-api-ochre.vercel.app/api/sora?prompt=${encodeURIComponent(prompt)}`;
+  let data;
+  try {
+    const r = await axios.get(url, { timeout: 90000, headers: { "user-agent": "Mozilla/5.0" } });
+    data = r.data;
+  } catch (e) {
+    return { ok: false, error: `sora api unreachable: ${e.response?.status || e.message}` };
+  }
+  const videoUrl = data?.videoUrl || data?.result || data?.data?.videoUrl || data?.url;
+  if (!videoUrl) return { ok: false, error: "no videoUrl in sora response" };
+  const vid = await axios.get(videoUrl, { responseType: "arraybuffer", timeout: 120000 });
+  const file = path.join(VIDEOS_DIR, `${safeName(filename, "sora")}.mp4`);
+  fs.writeFileSync(file, Buffer.from(vid.data));
+  return { ok: true, path: path.relative(process.cwd(), file) };
+}
+
 export async function bratVideo({ text, filename, speed = "normal" }) {
   const out = path.join(VIDEOS_DIR, `${safeName(filename, "brat")}.mp4`);
   const tmp = fs.mkdtempSync(path.join(VIDEOS_DIR, "brat"));

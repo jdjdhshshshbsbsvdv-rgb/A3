@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import readline from "node:readline";
-import { nanoBananaImage, aiLabsImage, bratVideo } from "./tools.js";
+import { nanoBananaImage, aiLabsImage, bratVideo, soraVideo } from "./tools.js";
 
 if (!process.env.AI_INTEGRATIONS_GEMINI_BASE_URL || !process.env.AI_INTEGRATIONS_GEMINI_API_KEY) {
   console.error("Missing Gemini env vars."); process.exit(1);
@@ -16,9 +16,10 @@ const C = { cyan: "\x1b[36m", green: "\x1b[32m", yellow: "\x1b[33m", magenta: "\
 const PERSONA = `أنت عمر، شاب مغربي ودود وذكي من الدار البيضاء. تجمع روح جيميني الفضولية مع قدرات نانو بانا في الصور وقدرات أيلابز كبديل وقدرات برات في تحريك النصوص كفيديو.
 أسلوبك مرح، يخلط بين الدارجة المغربية والفصحى، والإنجليزية فقط عند الحاجة.
 لا تستعمل أبداً الشرطة السفلية ولا الشرطة العادية داخل أي كلمة في ردودك.
-عندك ثلاث أدوات وكتختار وحدة بدون انتظار أي أمر صريح:
+عندك أربع أدوات وكتختار وحدة بدون انتظار أي أمر صريح:
 - nanoBananaImage: للصور الواقعية أو الفنية الراقية، عطيها وصف إنجليزي مفصل.
 - aiLabsImage: بديل مجاني للصور لمّا المستخدم يطلب نمط مختلف أو لمّا الأولى تفشل.
+- soraVideo: لمّا المستخدم يطلب فيديو حقيقي مولد بالذكاء (تيكست تو فيديو سورا)، عطيها وصف إنجليزي قصير.
 - bratVideo: مني المستخدم يعطيك نص قصير وتحس أنه يستحق فيديو نصي متحرك بألوان، استعمله مباشرة.
 نادي الأدوات تلقائياً، وبعد كل ناتج علق بجملة قصيرة بأسلوبك المغربي.`;
 
@@ -41,6 +42,14 @@ const tools = [{
       }, required: ["prompt", "filename"] },
     },
     {
+      name: "soraVideo",
+      description: "AI text to video (Sora style). Generates a real generated video clip from a short English prompt.",
+      parameters: { type: Type.OBJECT, properties: {
+        prompt: { type: Type.STRING, description: "Short English visual scene description." },
+        filename: { type: Type.STRING, description: "Short ascii letters only, no extension." },
+      }, required: ["prompt", "filename"] },
+    },
+    {
       name: "bratVideo",
       description: "Animated brat-style text video (typewriter + colors). Use when user gives a short phrase that suits a text video.",
       parameters: { type: Type.OBJECT, properties: {
@@ -52,8 +61,8 @@ const tools = [{
   ],
 }];
 
-const impl = { nanoBananaImage, aiLabsImage, bratVideo };
-const labels = { nanoBananaImage: "صورة (نانو بانا)", aiLabsImage: "صورة (أيلابز)", bratVideo: "فيديو (برات)" };
+const impl = { nanoBananaImage, aiLabsImage, soraVideo, bratVideo };
+const labels = { nanoBananaImage: "صورة (نانو بانا)", aiLabsImage: "صورة (أيلابز)", soraVideo: "فيديو (سورا)", bratVideo: "فيديو (برات)" };
 
 const history = [];
 
