@@ -1,0 +1,16 @@
+{
+  "name": "gemini-cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node gemini.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.44.0",
+    "@napi-rs/canvas": "^0.1.99",
+    "axios": "^1.15.2",
+    "form-data": "^4.0.5",
+    "jimp": "^1.6.1"
+  }
+}
